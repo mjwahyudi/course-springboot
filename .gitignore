@@ -1,2 +1,10 @@
 
 *.class
+
+demo/mod1/demo2/app/mvnw.cmd
+
+demo/mod1/demo2/app/.mvn/wrapper/maven-wrapper.properties
+
+demo/mod1/demo2/app/mvnw
+
+demo/mod1/demo2/.vscode/
