@@ -1,54 +1,21 @@
 package com.demo;
 
-interface Engine {
-    public void start();
-}
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 
-class V8Engine implements Engine {
-    private String type = "V8";
-
-    public V8Engine() {
-        // Constructor implementation
-    }
-
-    @Override
-    public void start() {
-        System.out.println("Starting the "+ type+" engine...");
-    }
-}
-
-class TurboEngine implements Engine {
-    private String type = "Turbo";
-
-    public TurboEngine() {
-        // Constructor implementation
-    }
-
-    @Override
-    public void start() {
-        System.out.println("Starting the "+ type+" engine...");
-    }
-}
-
-class Car {
-    private final Engine engine;
-
-    public Car(Engine engine) {
-        this.engine = engine;
-    }
-
-    public void drive(String destination) {
-        engine.start();
-        System.out.println("Go to " + destination);
-    }
-}
-
+@Configuration
+@ComponentScan("com.demo") // Automatically detects @Component classes
 public class Main {
     public static void main(String[] args) {
-        Car bmw = new Car(new V8Engine());
-        bmw.drive("Berlin");
+        try (var context = new AnnotationConfigApplicationContext(Main.class)) {
+            Car car = context.getBean(Car.class);
+            car.drive("Berlin");
 
-        bmw = new Car(new TurboEngine());
-        bmw.drive("Munich");
+            Engine engine = context.getBean(V8Engine.class);
+            car.setEngine(engine);
+            car.drive("Munich");
+            
+        }
     }
 }
