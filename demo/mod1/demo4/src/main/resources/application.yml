@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: demo4
+
+server:
+  port: 9090
+
+greeting:
+  message: "Hello from DEFAULT config"
+  audience: "DEFAULT world"
