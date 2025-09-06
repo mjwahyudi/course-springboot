@@ -1,3 +1,4 @@
 greeting:
+  enabled: false
   message: "Hello from PROD config"
   audience: "PROD world"
