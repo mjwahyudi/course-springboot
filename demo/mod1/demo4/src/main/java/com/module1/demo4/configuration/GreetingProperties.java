@@ -1,9 +1,7 @@
 package com.module1.demo4.configuration;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
 
-@Component
 @ConfigurationProperties(prefix = "greeting")
 public class GreetingProperties {
   private boolean enabled = false;
