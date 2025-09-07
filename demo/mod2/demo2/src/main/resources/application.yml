@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: demo2-mapping-demo
+
+server:
+  port: 9090
