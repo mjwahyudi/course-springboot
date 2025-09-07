@@ -1,11 +1,6 @@
 spring:
   application:
-    name: demo4
+    name: demo2-mapping-demo
 
 server:
   port: 9090
-
-greeting:
-  enabled: true
-  message: "Hello from DEFAULT config"
-  audience: "DEFAULT world"
