@@ -1,28 +1,12 @@
-
 *.class
+**mvnw**
 
-demo/mod1/demo2/app/mvnw.cmd
+**/.mvn/**
 
-demo/mod1/demo2/app/.mvn/wrapper/maven-wrapper.properties
+/target/
+*/target/**
+**/target/**
 
-demo/mod1/demo2/app/mvnw
+**/.vscode/**
 
-demo/mod1/demo2/.vscode/
 
-demo/mod1/demo3/web/.mvn/wrapper/
-
-demo/mod1/demo3/web/mvnw
-
-demo/mod1/demo3/web/mvnw.cmd
-
-practice/practice501/spring-microservices/.vscode/
-
-practice/practice501/spring-microservices/api-gateway/target/
-
-practice/practice501/spring-microservices/discovery-server/target/
-
-practice/practice501/spring-microservices/config-server/target/
-
-practice/practice501/spring-microservices/notification-service/target/
-
-practice/practice501/spring-microservices/order-service/target/
