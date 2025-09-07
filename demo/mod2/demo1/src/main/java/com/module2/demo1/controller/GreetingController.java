@@ -1,13 +1,13 @@
 package com.module2.demo1.controller;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-
-
 
 @RestController
 public class GreetingController {
@@ -19,12 +19,16 @@ public class GreetingController {
 
   @PostMapping("/welcome")
   public String postMethodName(@RequestBody String person) {
-     return "welcome " + person;     
-  }
-  
-  @PutMapping("/give/{person}")
-  public String putMethodName(@PathVariable String person, @RequestBody String baggage) {
-     return "here your " + baggage +", Mr:" + person;   
+    return "welcome " + person;
   }
 
+  @PutMapping("/give/{person}")
+  public String putMethodName(@PathVariable String person, @RequestBody String baggage) {
+    return "here your " + baggage + ", Mr:" + person;
+  }
+
+  @DeleteMapping("/bye")
+  public String deleteMethodName(@RequestParam String person) {
+    return "bye " + person;
+  }
 }
