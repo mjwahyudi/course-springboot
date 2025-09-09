@@ -73,9 +73,11 @@ public class ApiController {
    * curl -X POST localhost:8080/api/transfer/fail-runtime \
    * -H "Content-Type: application/json" \
    * -d '{"fromAccountId":1,"toAccountId":2,"amount":50.00}'
-   * curl localhost:8080/api/accounts/1/balance # unchanged from previous (still 900.00)
+   * curl localhost:8080/api/accounts/1/balance # unchanged from previous (still
+   * 900.00)
    * curl localhost:8080/api/accounts/2/balance # unchanged (still 600.00)
-   * # Check DB table transfer_audits -> a FAIL row exists (committed in REQUIRES_NEW)
+   * # Check DB table transfer_audits -> a FAIL row exists (committed in
+   * REQUIRES_NEW)
    */
   @PostMapping("/transfer/fail-runtime")
   public ResponseEntity<?> failRuntime(@RequestBody TransferRequest req) {
@@ -84,6 +86,28 @@ public class ApiController {
       return ResponseEntity.ok(Map.of("status", "unexpected"));
     } catch (RuntimeException ex) {
       return ResponseEntity.badRequest().body(Map.of("status", "ROLLED_BACK", "reason", ex.getMessage()));
+    }
+  }
+
+  /*
+   * Transfer fails with checked exception
+   * Transfer $10 from Alice (1) to Bob (2)
+   * End state: Alice $890, Bob $610 (CHANGED!)
+   * 
+   * curl -X POST localhost:8080/api/transfer/fail-checked-default \
+   * -H "Content-Type: application/json" \
+   * -d '{"fromAccountId":1,"toAccountId":2,"amount":10.00}'
+   * curl localhost:8080/api/accounts/1/balance # 890.00 (changed!)
+   * curl localhost:8080/api/accounts/2/balance # 610.00
+   */
+
+  @PostMapping("/transfer/fail-checked-default")
+  public ResponseEntity<?> failCheckedDefault(@RequestBody TransferRequest req) {
+    try {
+      accountService.transferFailChecked_NoRollback(req);
+      return ResponseEntity.ok(Map.of("status", "unexpected"));
+    } catch (Exception ex) {
+      return ResponseEntity.badRequest().body(Map.of("status", "MAYBE_COMMITTED", "reason", ex.getMessage()));
     }
   }
 }

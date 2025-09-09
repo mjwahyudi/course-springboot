@@ -67,4 +67,19 @@ public class AccountService {
         // cause rollback of OUTER (required) transaction
         throw new IllegalStateException("Forcing rollback with runtime exception");
     }
+
+    // 3) Checked exception: by default NOT rolled back (demo default behavior)
+    @Transactional
+    public void transferFailChecked_NoRollback(TransferRequest req) throws Exception {
+        var from = accountRepo.findForUpdate(req.fromAccountId())
+                .orElseThrow();
+        var to = accountRepo.findForUpdate(req.toAccountId())
+                .orElseThrow();
+
+        from.debit(req.amount());
+        to.credit(req.amount());
+
+        auditService.log(from.getId(), to.getId(), req.amount(), "FAIL", "checked exception (no rollback)");
+        throw new Exception("Checked exception -> default no rollback");
+    }
 }
