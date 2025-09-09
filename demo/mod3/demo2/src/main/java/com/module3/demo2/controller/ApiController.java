@@ -100,7 +100,6 @@ public class ApiController {
    * curl localhost:8080/api/accounts/1/balance # 890.00 (changed!)
    * curl localhost:8080/api/accounts/2/balance # 610.00
    */
-
   @PostMapping("/transfer/fail-checked-default")
   public ResponseEntity<?> failCheckedDefault(@RequestBody TransferRequest req) {
     try {
@@ -108,6 +107,27 @@ public class ApiController {
       return ResponseEntity.ok(Map.of("status", "unexpected"));
     } catch (Exception ex) {
       return ResponseEntity.badRequest().body(Map.of("status", "MAYBE_COMMITTED", "reason", ex.getMessage()));
+    }
+  }
+
+  /*
+   * Transfer fails with checked exception but we force rollback
+   * Transfer $10 from Alice (1) to Bob (2)
+   * End state: Alice $890, Bob $610 (UNCHANGED from previous)
+   * 
+   * curl -X POST localhost:8080/api/transfer/fail-checked-rollbackfor \
+   * -H "Content-Type: application/json" \
+   * -d '{"fromAccountId":1,"toAccountId":2,"amount":10.00}'
+   * curl localhost:8080/api/accounts/1/balance # still 890.00
+   * curl localhost:8080/api/accounts/2/balance # still 610.00
+   */
+  @PostMapping("/transfer/fail-checked-rollbackfor")
+  public ResponseEntity<?> failCheckedRollback(@RequestBody TransferRequest req) {
+    try {
+      accountService.transferFailChecked_WithRollback(req);
+      return ResponseEntity.ok(Map.of("status", "unexpected"));
+    } catch (Exception ex) {
+      return ResponseEntity.badRequest().body(Map.of("status", "ROLLED_BACK", "reason", ex.getMessage()));
     }
   }
 }

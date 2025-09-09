@@ -82,4 +82,19 @@ public class AccountService {
         auditService.log(from.getId(), to.getId(), req.amount(), "FAIL", "checked exception (no rollback)");
         throw new Exception("Checked exception -> default no rollback");
     }
+
+    // 4) Checked exception with rollbackFor
+    @Transactional(rollbackFor = Exception.class)
+    public void transferFailChecked_WithRollback(TransferRequest req) throws Exception {
+        var from = accountRepo.findForUpdate(req.fromAccountId())
+                .orElseThrow();
+        var to = accountRepo.findForUpdate(req.toAccountId())
+                .orElseThrow();
+
+        from.debit(req.amount());
+        to.credit(req.amount());
+
+        auditService.log(from.getId(), to.getId(), req.amount(), "FAIL", "checked exception (rollbackFor)");
+        throw new Exception("Checked exception -> rollback configured");
+    }
 }
