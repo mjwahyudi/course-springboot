@@ -17,7 +17,7 @@ public class AuditService {
         this.auditRepo = auditRepo;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public void log(Long fromId, Long toId, BigDecimal amount, String status, String msg) {
         auditRepo.save(new TransferAudit(fromId, toId, amount, status, msg));
     }

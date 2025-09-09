@@ -97,4 +97,22 @@ public class AccountService {
         auditService.log(from.getId(), to.getId(), req.amount(), "FAIL", "checked exception (rollbackFor)");
         throw new Exception("Checked exception -> rollback configured");
     }
+
+    // 6) Timeout (forces rollback)
+    @Transactional(timeout = 2) // seconds
+    public void transferTimeout(TransferRequest req) {
+        var from = accountRepo.findForUpdate(req.fromAccountId()).orElseThrow();
+        var to = accountRepo.findForUpdate(req.toAccountId()).orElseThrow();
+
+        from.debit(req.amount());
+        to.credit(req.amount());
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException ignored) {
+        }
+
+        auditService.log(from.getId(), to.getId(), req.amount(), "FAIL", "will not written due to timeout");
+        // expect TransactionTimedOutException / rollback at commit
+    }
 }

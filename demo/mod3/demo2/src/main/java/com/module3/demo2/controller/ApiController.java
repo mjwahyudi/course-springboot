@@ -130,4 +130,24 @@ public class ApiController {
       return ResponseEntity.badRequest().body(Map.of("status", "ROLLED_BACK", "reason", ex.getMessage()));
     }
   }
+
+  /*
+   * Transfer times out (sleeps too long)
+   * Transfer $5 from Alice (1) to Bob (2)
+   * End state: Alice $890, Bob $610 (UNCHANGED from previous)
+   * 
+   * curl -X POST localhost:8080/api/transfer/timeout \
+   * -H "Content-Type: application/json" \
+   * -d '{"fromAccountId":1,"toAccountId":2,"amount":5.00}'
+   * # Expect HTTP 400 with timeout reason; balances unchanged afterward.
+   */
+  @PostMapping("/transfer/timeout")
+  public ResponseEntity<?> timeout(@RequestBody TransferRequest req) {
+    try {
+      accountService.transferTimeout(req);
+      return ResponseEntity.ok(Map.of("status", "unexpected"));
+    } catch (Exception ex) {
+      return ResponseEntity.badRequest().body(Map.of("status", "ROLLED_BACK_TIMEOUT", "reason", ex.getMessage()));
+    }
+  }
 }
