@@ -18,7 +18,7 @@ public class AccountService {
         this.accountRepo = accountRepo;
         this.auditService = auditService;
     }
-    
+
     // 5) Read-only example
     @Transactional(readOnly = true)
     public BigDecimal getBalance(Long accountId) {
@@ -27,26 +27,44 @@ public class AccountService {
                 .getBalance();
     }
 
-  // 1) Happy path: REQUIRED (default, may not declared explicitly)
-  @Transactional(propagation = Propagation.REQUIRED)
-  public void transferOk(TransferRequest req) {
-    var from = accountRepo.findForUpdate(req.fromAccountId())
-        .orElseThrow(() -> new IllegalArgumentException("from not found"));
-    var to = accountRepo.findForUpdate(req.toAccountId())
-        .orElseThrow(() -> new IllegalArgumentException("to not found"));
+    // 1) Happy path: REQUIRED (default, may not declared explicitly)
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void transferOk(TransferRequest req) {
+        var from = accountRepo.findForUpdate(req.fromAccountId())
+                .orElseThrow(() -> new IllegalArgumentException("from not found"));
+        var to = accountRepo.findForUpdate(req.toAccountId())
+                .orElseThrow(() -> new IllegalArgumentException("to not found"));
 
-    ensureEnough(from.getBalance(), req.amount());
+        ensureEnough(from.getBalance(), req.amount());
 
-    from.debit(req.amount());
-    to.credit(req.amount());
+        from.debit(req.amount());
+        to.credit(req.amount());
 
-    // save is optional since managed entities are flushed at commit
-    auditService.log(from.getId(), to.getId(), req.amount(), "OK", "transfer committed");
-  }
-
-  private void ensureEnough(BigDecimal balance, BigDecimal amt) {
-    if (balance.compareTo(amt) < 0) {
-      throw new IllegalStateException("Insufficient funds");
+        // save is optional since managed entities are flushed at commit
+        auditService.log(from.getId(), to.getId(), req.amount(), "OK", "transfer committed");
     }
-  }
+
+    private void ensureEnough(BigDecimal balance, BigDecimal amt) {
+        if (balance.compareTo(amt) < 0) {
+            throw new IllegalStateException("Insufficient funds");
+        }
+    }
+
+    // 2) Rollback on RuntimeException
+    @Transactional
+    public void transferFailRuntime(TransferRequest req) {
+        var from = accountRepo.findForUpdate(req.fromAccountId())
+                .orElseThrow();
+        var to = accountRepo.findForUpdate(req.toAccountId())
+                .orElseThrow();
+
+        from.debit(req.amount());
+        to.credit(req.amount());
+
+        // inner audit logs in a new TX (will COMMIT even if outer fails)
+        auditService.log(from.getId(), to.getId(), req.amount(), "FAIL", "outer runtime exception");
+
+        // cause rollback of OUTER (required) transaction
+        throw new IllegalStateException("Forcing rollback with runtime exception");
+    }
 }

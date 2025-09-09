@@ -49,7 +49,9 @@ public class ApiController {
 
   /*
    * Happy path transfer example
-   *
+   * Transfer $100 from Alice (1) to Bob (2)
+   * End state: Alice $900, Bob $600
+   * 
    * curl -X POST localhost:8080/api/transfer/ok \
    * -H "Content-Type: application/json" \
    * -d '{"fromAccountId":1,"toAccountId":2,"amount":100.00}'
@@ -60,5 +62,28 @@ public class ApiController {
   public ResponseEntity<?> ok(@RequestBody TransferRequest req) {
     accountService.transferOk(req);
     return ResponseEntity.ok(Map.of("status", "OK"));
+  }
+
+  /*
+   * Transfer fails somehow
+   * Transfer $50 from Alice (1) to Bob (2)
+   * End state: Alice $900, Bob $600 (unchanged from previous)
+   * But we still have an audit log of the failed transfer
+   * 
+   * curl -X POST localhost:8080/api/transfer/fail-runtime \
+   * -H "Content-Type: application/json" \
+   * -d '{"fromAccountId":1,"toAccountId":2,"amount":50.00}'
+   * curl localhost:8080/api/accounts/1/balance # unchanged from previous (still 900.00)
+   * curl localhost:8080/api/accounts/2/balance # unchanged (still 600.00)
+   * # Check DB table transfer_audits -> a FAIL row exists (committed in REQUIRES_NEW)
+   */
+  @PostMapping("/transfer/fail-runtime")
+  public ResponseEntity<?> failRuntime(@RequestBody TransferRequest req) {
+    try {
+      accountService.transferFailRuntime(req);
+      return ResponseEntity.ok(Map.of("status", "unexpected"));
+    } catch (RuntimeException ex) {
+      return ResponseEntity.badRequest().body(Map.of("status", "ROLLED_BACK", "reason", ex.getMessage()));
+    }
   }
 }
