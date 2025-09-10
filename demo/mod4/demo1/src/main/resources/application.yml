@@ -1,0 +1,23 @@
+server:
+  port: 9090
+
+spring:
+  application:
+    name: demo4
+
+  datasource:
+    url: jdbc:postgresql://db.bqrvzzfsmenzptzoeqng.supabase.co:5432/postgres?sslmode=require
+    username: postgres
+    password: ${DB_PASSWORD:changeme}
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 1
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update   # demo only; for prod use migrations (Flyway)
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
