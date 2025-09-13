@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: order-service
+  cloud:
+    openfeign:
+      # Wrap Feign calls with Spring Cloud CircuitBreaker
+      circuitbreaker:
+        enabled: true
+      client:
+        config:
+          default:                 # per-client timeouts (important for tripping CB)
+            connectTimeout: 2000   # ms
+            readTimeout: 2000
+    loadbalancer:
+      retry:
+        enabled: true              # optional: retry on failed instance
+
+server:
+  port: 8080
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+
+# (Optional) Resilience4j circuit breaker tuning
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+  # TimeLimiter is generally for async calls; Feign is sync.
+  # Prefer Feign timeouts (above) to simulate "slow" downstreams.
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,circuitbreakers,circuitbreakerevents
+  endpoint:
+    health:
+      show-details: always
