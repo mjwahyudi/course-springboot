@@ -1,0 +1,13 @@
+greeting:
+  message: "Hello from Config Server (v1)"
+
+# It's fine to centralize some client config here too:
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
