@@ -1,0 +1,32 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+    
+  config:
+    import: "optional:configserver:http://localhost:8888"
+
+  cloud:
+    gateway:
+      routes:
+        - id: hello-route
+          uri: lb://HELLO-SERVICE
+          predicates:
+            - Path=/hello
+      # (Optional) auto-discover services:
+      # discovery:
+      #   locator:
+      #     enabled: true
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
