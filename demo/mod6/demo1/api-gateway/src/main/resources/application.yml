@@ -11,10 +11,10 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: hello-route
-          uri: lb://HELLO-SERVICE
+        - id: order-service
+          uri: lb://ORDER-SERVICE
           predicates:
-            - Path=/hello
+            - Path=/api/orders/**
 
 eureka:
   client:

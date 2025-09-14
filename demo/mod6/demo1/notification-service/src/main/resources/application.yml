@@ -1,6 +1,7 @@
 spring:
   application:
     name: notification-service
+    
 server:
   port: 8082     # second instance can run on 8083
 
@@ -10,13 +11,6 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
     register-with-eureka: true
     fetch-registry: true
-
-logging:
-  # Include app name in MDC (so the %X{springApplicationName} resolves)
-  # Boot already correlates logs via MDC (traceId/spanId) when Micrometer Tracing is present.
-  pattern:
-    # If you prefer property-based correlation instead of custom logback:
-    correlation: "[${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
 
 management:
   tracing:

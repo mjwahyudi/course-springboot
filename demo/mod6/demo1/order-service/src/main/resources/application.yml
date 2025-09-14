@@ -11,12 +11,14 @@ spring:
           default:                 # per-client timeouts (important for tripping CB)
             connectTimeout: 2000   # ms
             readTimeout: 2000
+      micrometer:
+        enabled: true              # optional: Feign metrics
     loadbalancer:
       retry:
         enabled: true              # optional: retry on failed instance
 
 server:
-  port: 8080
+  port: 8081
 
 eureka:
   client:
