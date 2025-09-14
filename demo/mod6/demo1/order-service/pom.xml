@@ -64,17 +64,6 @@
       <groupId>io.micrometer</groupId>
       <artifactId>micrometer-tracing-bridge-brave</artifactId>
     </dependency>
-    <dependency>
-      <groupId>io.zipkin.reporter2</groupId>
-      <artifactId>zipkin-reporter-brave</artifactId>
-    </dependency>
-
-    <!-- OPTIONAL: Prometheus registry for /actuator/prometheus -->
-    <dependency>
-      <groupId>io.micrometer</groupId>
-      <artifactId>micrometer-registry-prometheus</artifactId>
-      <scope>runtime</scope>
-    </dependency>
 
     <!-- For Feign client metrics (order-service) -->
     <dependency>
