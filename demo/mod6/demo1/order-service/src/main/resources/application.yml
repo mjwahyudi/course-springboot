@@ -1,0 +1,68 @@
+spring:
+  application:
+    name: order-service
+  cloud:
+    openfeign:
+      # Wrap Feign calls with Spring Cloud CircuitBreaker
+      circuitbreaker:
+        enabled: true
+      client:
+        config:
+          default:                 # per-client timeouts (important for tripping CB)
+            connectTimeout: 2000   # ms
+            readTimeout: 2000
+      micrometer:
+        enabled: true              # optional: Feign metrics
+    loadbalancer:
+      retry:
+        enabled: true              # optional: retry on failed instance
+
+server:
+  port: 8081
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+
+# (Optional) Resilience4j circuit breaker tuning
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+  # TimeLimiter is generally for async calls; Feign is sync.
+  # Prefer Feign timeouts (above) to simulate "slow" downstreams.
+
+logging:
+  # Include app name in MDC (so the %X{springApplicationName} resolves)
+  # Boot already correlates logs via MDC (traceId/spanId) when Micrometer Tracing is present.
+  pattern:
+    # If you prefer property-based correlation instead of custom logback:
+    correlation: "[${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+    
+management:
+  tracing:
+    sampling:
+      probability: 1.0               # demo: sample 100% so every request gets a trace
+    # W3C is the default propagation; add B3 too if you still talk to older Boot 2/Sleuth services:
+    propagation:
+      produce: [W3C, B3]             # optional; default is W3C only
+      consume: [W3C, B3, B3_MULTI]   # default includes these
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,circuitbreakers,circuitbreakerevents,prometheus  # prometheus is optional text view only
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
